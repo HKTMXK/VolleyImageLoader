@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DataLoader">
+    <property environment="env" />
+    <property file="default.properties"/>
+    <property name="sdk.dir" value="${env.ANDROID_HOME}"/>
+    
+    <fail
+            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project'"
+            unless="sdk.dir"
+            />
+    
+    <import file="custom_rules.xml" optional="true" />
+
+    <import file="${sdk.dir}/tools/ant/build.xml"/>
+
+</project>

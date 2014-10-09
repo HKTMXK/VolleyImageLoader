@@ -15,10 +15,12 @@
  *******************************************************************************/
 package com.nostra13.universalimageloader.cache.memory;
 
-import android.graphics.Bitmap;
-
 import java.lang.ref.Reference;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Base memory cache. Implements common functionality for memory cache. Provides object references (
@@ -30,12 +32,12 @@ import java.util.*;
 public abstract class BaseMemoryCache implements MemoryCache {
 
 	/** Stores not strong references to objects */
-	private final Map<String, Reference<Bitmap>> softMap = Collections.synchronizedMap(new HashMap<String, Reference<Bitmap>>());
+	private final Map<String, Reference<CacheEntry>> softMap = Collections.synchronizedMap(new HashMap<String, Reference<CacheEntry>>());
 
 	@Override
-	public Bitmap get(String key) {
-		Bitmap result = null;
-		Reference<Bitmap> reference = softMap.get(key);
+	public CacheEntry get(String key) {
+	    CacheEntry result = null;
+		Reference<CacheEntry> reference = softMap.get(key);
 		if (reference != null) {
 			result = reference.get();
 		}
@@ -43,15 +45,14 @@ public abstract class BaseMemoryCache implements MemoryCache {
 	}
 
 	@Override
-	public boolean put(String key, Bitmap value) {
+	public boolean put(String key, CacheEntry value) {
 		softMap.put(key, createReference(value));
 		return true;
 	}
 
 	@Override
-	public Bitmap remove(String key) {
-		Reference<Bitmap> bmpRef = softMap.remove(key);
-		return bmpRef == null ? null : bmpRef.get();
+	public void remove(String key) {
+		softMap.remove(key);
 	}
 
 	@Override
@@ -67,5 +68,5 @@ public abstract class BaseMemoryCache implements MemoryCache {
 	}
 
 	/** Creates {@linkplain Reference not strong} reference of value */
-	protected abstract Reference<Bitmap> createReference(Bitmap value);
+	protected abstract Reference<CacheEntry> createReference(CacheEntry value);
 }

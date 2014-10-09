@@ -39,7 +39,7 @@ public class Response<T> {
     }
 
     /** Returns a successful response containing the parsed result. */
-    public static <T> Response<T> success(T result, Cache.Entry cacheEntry) {
+    public static <T> Response<T> success(T result, Cache.CacheEntry cacheEntry) {
         return new Response<T>(result, cacheEntry);
     }
 
@@ -55,7 +55,7 @@ public class Response<T> {
     public final T result;
 
     /** Cache metadata for this response, or null in the case of error. */
-    public final Cache.Entry cacheEntry;
+    public final Cache.CacheEntry cacheEntry;
 
     /** Detailed error information if <code>errorCode != OK</code>. */
     public final VolleyError error;
@@ -71,7 +71,7 @@ public class Response<T> {
     }
 
 
-    private Response(T result, Cache.Entry cacheEntry) {
+    private Response(T result, Cache.CacheEntry cacheEntry) {
         this.result = result;
         this.cacheEntry = cacheEntry;
         this.error = null;

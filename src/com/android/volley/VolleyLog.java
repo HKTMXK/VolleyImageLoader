@@ -16,12 +16,12 @@
 
 package com.android.volley;
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import android.os.SystemClock;
+import android.util.Log;
 
 /** Logging helper class. */
 public class VolleyLog {
@@ -40,7 +40,6 @@ public class VolleyLog {
     public static void setTag(String tag) {
         d("Changing log tag to %s", tag);
         TAG = tag;
-
         // Reinitialize the DEBUG "constant"
         DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
     }

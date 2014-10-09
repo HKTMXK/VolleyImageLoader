@@ -43,14 +43,14 @@ public class LargestLimitedMemoryCache extends LimitedMemoryCache {
 	 * size will exceed limit then object with the largest size is deleted (but it continue exist at
 	 * {@link #softMap} and can be collected by GC at any time)
 	 */
-	private final Map<Bitmap, Integer> valueSizes = Collections.synchronizedMap(new HashMap<Bitmap, Integer>());
+	private final Map<CacheEntry, Integer> valueSizes = Collections.synchronizedMap(new HashMap<CacheEntry, Integer>());
 
 	public LargestLimitedMemoryCache(int sizeLimit) {
 		super(sizeLimit);
 	}
 
 	@Override
-	public boolean put(String key, Bitmap value) {
+	public boolean put(String key, CacheEntry value) {
 		if (super.put(key, value)) {
 			valueSizes.put(value, getSize(value));
 			return true;
@@ -60,12 +60,12 @@ public class LargestLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	public Bitmap remove(String key) {
-		Bitmap value = super.get(key);
+	public void remove(String key) {
+	    CacheEntry value = super.get(key);
 		if (value != null) {
 			valueSizes.remove(value);
 		}
-		return super.remove(key);
+		super.remove(key);
 	}
 
 	@Override
@@ -75,17 +75,18 @@ public class LargestLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	protected int getSize(Bitmap value) {
-		return value.getRowBytes() * value.getHeight();
+	protected int getSize(CacheEntry value) {
+	    return value.size();
+//		return value.getRowBytes() * value.getHeight();
 	}
 
 	@Override
-	protected Bitmap removeNext() {
+	protected CacheEntry removeNext() {
 		Integer maxSize = null;
-		Bitmap largestValue = null;
-		Set<Entry<Bitmap, Integer>> entries = valueSizes.entrySet();
+		CacheEntry largestValue = null;
+		Set<Entry<CacheEntry, Integer>> entries = valueSizes.entrySet();
 		synchronized (valueSizes) {
-			for (Entry<Bitmap, Integer> entry : entries) {
+			for (Entry<CacheEntry, Integer> entry : entries) {
 				if (largestValue == null) {
 					largestValue = entry.getKey();
 					maxSize = entry.getValue();
@@ -103,7 +104,7 @@ public class LargestLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	protected Reference<Bitmap> createReference(Bitmap value) {
-		return new WeakReference<Bitmap>(value);
+	protected Reference<CacheEntry> createReference(CacheEntry value) {
+		return new WeakReference<CacheEntry>(value);
 	}
 }

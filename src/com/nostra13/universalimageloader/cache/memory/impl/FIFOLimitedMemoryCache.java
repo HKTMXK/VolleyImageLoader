@@ -36,14 +36,14 @@ import java.util.List;
  */
 public class FIFOLimitedMemoryCache extends LimitedMemoryCache {
 
-	private final List<Bitmap> queue = Collections.synchronizedList(new LinkedList<Bitmap>());
+	private final List<CacheEntry> queue = Collections.synchronizedList(new LinkedList<CacheEntry>());
 
 	public FIFOLimitedMemoryCache(int sizeLimit) {
 		super(sizeLimit);
 	}
 
 	@Override
-	public boolean put(String key, Bitmap value) {
+	public boolean put(String key, CacheEntry value) {
 		if (super.put(key, value)) {
 			queue.add(value);
 			return true;
@@ -53,12 +53,12 @@ public class FIFOLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	public Bitmap remove(String key) {
-		Bitmap value = super.get(key);
+	public void remove(String key) {
+	    CacheEntry value = super.get(key);
 		if (value != null) {
 			queue.remove(value);
 		}
-		return super.remove(key);
+		super.remove(key);
 	}
 
 	@Override
@@ -68,17 +68,17 @@ public class FIFOLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	protected int getSize(Bitmap value) {
-		return value.getRowBytes() * value.getHeight();
+	protected int getSize(CacheEntry value) {
+	    return value.size();
 	}
 
 	@Override
-	protected Bitmap removeNext() {
+	protected CacheEntry removeNext() {
 		return queue.remove(0);
 	}
 
 	@Override
-	protected Reference<Bitmap> createReference(Bitmap value) {
-		return new WeakReference<Bitmap>(value);
+	protected Reference<CacheEntry> createReference(CacheEntry value) {
+		return new WeakReference<CacheEntry>(value);
 	}
 }

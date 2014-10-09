@@ -36,7 +36,7 @@ public class HttpHeaderParser {
      * @param response The network response to parse headers from
      * @return a cache entry for the given response, or null if the response is not cacheable.
      */
-    public static Cache.Entry parseCacheHeaders(NetworkResponse response) {
+    public static Cache.CacheEntry parseCacheHeaders(NetworkResponse response) {
         long now = System.currentTimeMillis();
 
         Map<String, String> headers = response.headers;
@@ -90,15 +90,7 @@ public class HttpHeaderParser {
             softExpire = now + (serverExpires - serverDate);
         }
 
-        Cache.Entry entry = new Cache.Entry();
-        entry.data = response.data;
-        entry.etag = serverEtag;
-        entry.softTtl = softExpire;
-        entry.ttl = entry.softTtl;
-        entry.serverDate = serverDate;
-        entry.responseHeaders = headers;
-
-        return entry;
+        return new Cache.CacheEntry(response.data);
     }
 
     /**

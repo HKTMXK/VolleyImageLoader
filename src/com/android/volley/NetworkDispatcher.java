@@ -16,16 +16,15 @@
 
 package com.android.volley;
 
+import java.util.concurrent.BlockingQueue;
+
 import android.annotation.TargetApi;
 import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
 
-import java.util.concurrent.BlockingQueue;
-
 /**
  * Provides a thread for performing network dispatch from a queue of requests.
- *
  * Requests added to the specified queue are processed from the network via a
  * specified {@link Network} interface. Responses are committed to cache, if
  * eligible, using a specified {@link Cache} interface. Valid responses and
@@ -44,9 +43,9 @@ public class NetworkDispatcher extends Thread {
     private volatile boolean mQuit = false;
 
     /**
-     * Creates a new network dispatcher thread.  You must call {@link #start()}
+     * Creates a new network dispatcher thread. You must call {@link #start()}
      * in order to begin processing.
-     *
+     * 
      * @param queue Queue of incoming requests for triage
      * @param network Network interface to use for performing requests
      * @param cache Cache interface to use for writing responses to cache
@@ -62,7 +61,7 @@ public class NetworkDispatcher extends Thread {
     }
 
     /**
-     * Forces this dispatcher to quit immediately.  If any requests are still in
+     * Forces this dispatcher to quit immediately. If any requests are still in
      * the queue, they are not guaranteed to be processed.
      */
     public void quit() {
@@ -110,7 +109,8 @@ public class NetworkDispatcher extends Thread {
                 NetworkResponse networkResponse = mNetwork.performRequest(request);
                 request.addMarker("network-http-complete");
 
-                // If the server returned 304 AND we delivered a response already,
+                // If the server returned 304 AND we delivered a response
+                // already,
                 // we're done -- don't deliver a second identical response.
                 if (networkResponse.notModified && request.hasHadResponseDelivered()) {
                     request.finish("not-modified");
@@ -122,7 +122,8 @@ public class NetworkDispatcher extends Thread {
                 request.addMarker("network-parse-complete");
 
                 // Write to cache if applicable.
-                // TODO: Only update cache metadata instead of entire record for 304s.
+                // TODO: Only update cache metadata instead of entire record for
+                // 304s.
                 if (request.shouldCache() && response.cacheEntry != null) {
                     mCache.put(request.getCacheKey(), response.cacheEntry);
                     request.addMarker("network-cache-written");

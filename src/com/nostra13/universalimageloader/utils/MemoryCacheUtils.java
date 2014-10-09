@@ -64,15 +64,15 @@ public final class MemoryCacheUtils {
 	 * {@link ImageLoaderConfiguration.Builder#denyCacheImageMultipleSizesInMemory()
 	 * denyCacheImageMultipleSizesInMemory()} option in {@linkplain ImageLoaderConfiguration configuration}
 	 */
-	public static List<Bitmap> findCachedBitmapsForImageUri(String imageUri, MemoryCache memoryCache) {
-		List<Bitmap> values = new ArrayList<Bitmap>();
-		for (String key : memoryCache.keys()) {
-			if (key.startsWith(imageUri)) {
-				values.add(memoryCache.get(key));
-			}
-		}
-		return values;
-	}
+//	public static List<Bitmap> findCachedBitmapsForImageUri(String imageUri, MemoryCache memoryCache) {
+//		List<Bitmap> values = new ArrayList<Bitmap>();
+//		for (String key : memoryCache.keys()) {
+//			if (key.startsWith(imageUri)) {
+//				values.add(memoryCache.get(key));
+//			}
+//		}
+//		return values;
+//	}
 
 	/**
 	 * Searches all keys in memory cache which are corresponded to incoming URI.<br />

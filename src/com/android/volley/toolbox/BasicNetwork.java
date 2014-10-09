@@ -65,7 +65,8 @@ public class BasicNetwork implements Network {
      * @param httpStack HTTP stack to be used
      */
     public BasicNetwork(HttpStack httpStack) {
-        // If a pool isn't passed in, then build a small default pool that will give us a lot of
+        // If a pool isn't passed in, then build a small default pool that will
+        // give us a lot of
         // benefit and not use too much memory.
         this(httpStack, new ByteArrayPool(DEFAULT_POOL_SIZE));
     }
@@ -89,7 +90,8 @@ public class BasicNetwork implements Network {
             try {
                 // Gather headers.
                 Map<String, String> headers = new HashMap<String, String>();
-                addCacheHeaders(headers, request.getCacheEntry());
+                // TODO
+                // addCacheHeaders(headers, request.getCacheEntry());
                 httpResponse = mHttpStack.performRequest(request, headers);
                 StatusLine statusLine = httpResponse.getStatusLine();
                 int statusCode = statusLine.getStatusCode();
@@ -102,13 +104,14 @@ public class BasicNetwork implements Network {
                             responseHeaders, true);
                 }
 
-                // Some responses such as 204s do not have content.  We must check.
+                // Some responses such as 204s do not have content. We must
+                // check.
                 if (httpResponse.getEntity() != null) {
-                  responseContents = entityToBytes(httpResponse.getEntity());
+                    responseContents = entityToBytes(httpResponse.getEntity());
                 } else {
-                  // Add 0 byte response as a way of honestly representing a
-                  // no-content request.
-                  responseContents = new byte[0];
+                    // Add 0 byte response as a way of honestly representing a
+                    // no-content request.
+                    responseContents = new byte[0];
                 }
 
                 // if the request is slow, log it.
@@ -166,8 +169,10 @@ public class BasicNetwork implements Network {
     }
 
     /**
-     * Attempts to prepare the request for a retry. If there are no more attempts remaining in the
-     * request's retry policy, a timeout exception is thrown.
+     * Attempts to prepare the request for a retry. If there are no more
+     * attempts remaining in the request's retry policy, a timeout exception is
+     * thrown.
+     * 
      * @param request The request to use.
      */
     private static void attemptRetryOnException(String logPrefix, Request<?> request,
@@ -183,22 +188,6 @@ public class BasicNetwork implements Network {
             throw e;
         }
         request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
-    }
-
-    private void addCacheHeaders(Map<String, String> headers, Cache.Entry entry) {
-        // If there's no cache entry, we're done.
-        if (entry == null) {
-            return;
-        }
-
-        if (entry.etag != null) {
-            headers.put("If-None-Match", entry.etag);
-        }
-
-        if (entry.serverDate > 0) {
-            Date refTime = new Date(entry.serverDate);
-            headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
-        }
     }
 
     protected void logError(String what, String url, long start) {
@@ -224,10 +213,12 @@ public class BasicNetwork implements Network {
             return bytes.toByteArray();
         } finally {
             try {
-                // Close the InputStream and release the resources by "consuming the content".
+                // Close the InputStream and release the resources by
+                // "consuming the content".
                 entity.consumeContent();
             } catch (IOException e) {
-                // This can happen if there was an exception above that left the entity in
+                // This can happen if there was an exception above that left the
+                // entity in
                 // an invalid state.
                 VolleyLog.v("Error occured when calling consumingContent");
             }

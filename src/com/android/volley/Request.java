@@ -104,7 +104,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * the network, the cache entry will be stored here so that in the event of
      * a "Not Modified" response, we can be sure it hasn't been evicted from cache.
      */
-    private Cache.Entry mCacheEntry = null;
+    private Cache.CacheEntry mCacheEntry = null;
 
     /** An opaque token tagging this request; used for bulk cancellation. */
     private Object mTag;
@@ -300,7 +300,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      *
      * @return This Request object to allow for chaining.
      */
-    public Request<?> setCacheEntry(Cache.Entry entry) {
+    public Request<?> setCacheEntry(Cache.CacheEntry entry) {
         mCacheEntry = entry;
         return this;
     }
@@ -308,7 +308,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     /**
      * Returns the annotated cache entry, or null if there isn't one.
      */
-    public Cache.Entry getCacheEntry() {
+    public Cache.CacheEntry getCacheEntry() {
         return mCacheEntry;
     }
 

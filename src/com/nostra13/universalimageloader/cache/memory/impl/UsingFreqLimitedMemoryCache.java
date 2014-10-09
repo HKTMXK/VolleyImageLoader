@@ -43,14 +43,14 @@ public class UsingFreqLimitedMemoryCache extends LimitedMemoryCache {
 	 * size will exceed limit then object with the least frequently usage is deleted (but it continue exist at
 	 * {@link #softMap} and can be collected by GC at any time)
 	 */
-	private final Map<Bitmap, Integer> usingCounts = Collections.synchronizedMap(new HashMap<Bitmap, Integer>());
+	private final Map<CacheEntry, Integer> usingCounts = Collections.synchronizedMap(new HashMap<CacheEntry, Integer>());
 
 	public UsingFreqLimitedMemoryCache(int sizeLimit) {
 		super(sizeLimit);
 	}
 
 	@Override
-	public boolean put(String key, Bitmap value) {
+	public boolean put(String key, CacheEntry value) {
 		if (super.put(key, value)) {
 			usingCounts.put(value, 0);
 			return true;
@@ -60,8 +60,8 @@ public class UsingFreqLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	public Bitmap get(String key) {
-		Bitmap value = super.get(key);
+	public CacheEntry get(String key) {
+	    CacheEntry value = super.get(key);
 		// Increment usage count for value if value is contained in hardCahe
 		if (value != null) {
 			Integer usageCount = usingCounts.get(value);
@@ -73,12 +73,12 @@ public class UsingFreqLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	public Bitmap remove(String key) {
-		Bitmap value = super.get(key);
+	public void remove(String key) {
+	    CacheEntry value = super.get(key);
 		if (value != null) {
 			usingCounts.remove(value);
 		}
-		return super.remove(key);
+		super.remove(key);
 	}
 
 	@Override
@@ -88,17 +88,18 @@ public class UsingFreqLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	protected int getSize(Bitmap value) {
-		return value.getRowBytes() * value.getHeight();
+	protected int getSize(CacheEntry value) {
+	    return value.size();
+//		return value.getRowBytes() * value.getHeight();
 	}
 
 	@Override
-	protected Bitmap removeNext() {
+	protected CacheEntry removeNext() {
 		Integer minUsageCount = null;
-		Bitmap leastUsedValue = null;
-		Set<Entry<Bitmap, Integer>> entries = usingCounts.entrySet();
+		CacheEntry leastUsedValue = null;
+		Set<Entry<CacheEntry, Integer>> entries = usingCounts.entrySet();
 		synchronized (usingCounts) {
-			for (Entry<Bitmap, Integer> entry : entries) {
+			for (Entry<CacheEntry, Integer> entry : entries) {
 				if (leastUsedValue == null) {
 					leastUsedValue = entry.getKey();
 					minUsageCount = entry.getValue();
@@ -116,7 +117,7 @@ public class UsingFreqLimitedMemoryCache extends LimitedMemoryCache {
 	}
 
 	@Override
-	protected Reference<Bitmap> createReference(Bitmap value) {
-		return new WeakReference<Bitmap>(value);
+	protected Reference<CacheEntry> createReference(CacheEntry value) {
+		return new WeakReference<CacheEntry>(value);
 	}
 }

@@ -32,7 +32,7 @@ public class NetworkResponse {
      * @param headers Headers returned with this response, or null for none
      * @param notModified True if the server returned a 304 and the data was already in cache
      */
-    public NetworkResponse(int statusCode, byte[] data, Map<String, String> headers,
+    public NetworkResponse(int statusCode, Object data, Map<String, String> headers,
             boolean notModified) {
         this.statusCode = statusCode;
         this.data = data;
@@ -40,11 +40,11 @@ public class NetworkResponse {
         this.notModified = notModified;
     }
 
-    public NetworkResponse(byte[] data) {
+    public NetworkResponse(Object data) {
         this(HttpStatus.SC_OK, data, Collections.<String, String>emptyMap(), false);
     }
 
-    public NetworkResponse(byte[] data, Map<String, String> headers) {
+    public NetworkResponse(Object data, Map<String, String> headers) {
         this(HttpStatus.SC_OK, data, headers, false);
     }
 
@@ -52,7 +52,7 @@ public class NetworkResponse {
     public final int statusCode;
 
     /** Raw data from this response. */
-    public final byte[] data;
+    public final Object data;
 
     /** Response headers. */
     public final Map<String, String> headers;

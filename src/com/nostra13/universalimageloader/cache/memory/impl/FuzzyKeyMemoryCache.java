@@ -42,7 +42,7 @@ public class FuzzyKeyMemoryCache implements MemoryCache {
 	}
 
 	@Override
-	public boolean put(String key, Bitmap value) {
+	public boolean put(String key, CacheEntry value) {
 		// Search equal key and remove this entry
 		synchronized (cache) {
 			String keyToRemove = null;
@@ -60,13 +60,13 @@ public class FuzzyKeyMemoryCache implements MemoryCache {
 	}
 
 	@Override
-	public Bitmap get(String key) {
+	public CacheEntry get(String key) {
 		return cache.get(key);
 	}
 
 	@Override
-	public Bitmap remove(String key) {
-		return cache.remove(key);
+	public void remove(String key) {
+		cache.remove(key);
 	}
 
 	@Override

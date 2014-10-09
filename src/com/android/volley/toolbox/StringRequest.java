@@ -21,7 +21,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.nostra13.universalimageloader.utils.FileUtil;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -32,7 +34,7 @@ public class StringRequest extends Request<String> {
 
     /**
      * Creates a new request with the given method.
-     *
+     * 
      * @param method the request {@link Method} to use
      * @param url URL to fetch the string at
      * @param listener Listener to receive the String response
@@ -46,7 +48,7 @@ public class StringRequest extends Request<String> {
 
     /**
      * Creates a new GET request.
-     *
+     * 
      * @param url URL to fetch the string at
      * @param listener Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
@@ -63,10 +65,15 @@ public class StringRequest extends Request<String> {
     @Override
     protected Response<String> parseNetworkResponse(NetworkResponse response) {
         String parsed;
+        Object data = response.data;
+        if (data instanceof File) {
+            data = FileUtil.getBytes((File) response.data);
+        }
         try {
-            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+            parsed = new String((byte[]) data,
+                    HttpHeaderParser.parseCharset(response.headers));
         } catch (UnsupportedEncodingException e) {
-            parsed = new String(response.data);
+            parsed = new String((byte[]) data);
         }
         return Response.success(parsed, HttpHeaderParser.parseCacheHeaders(response));
     }

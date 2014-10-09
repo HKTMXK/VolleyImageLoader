@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class LruMemoryCache implements MemoryCache {
 
-	private final LinkedHashMap<String, Bitmap> map;
+	private final LinkedHashMap<String, CacheEntry> map;
 
 	private final int maxSize;
 	/** Size of this cache in bytes */
@@ -33,7 +33,7 @@ public class LruMemoryCache implements MemoryCache {
 			throw new IllegalArgumentException("maxSize <= 0");
 		}
 		this.maxSize = maxSize;
-		this.map = new LinkedHashMap<String, Bitmap>(0, 0.75f, true);
+		this.map = new LinkedHashMap<String, CacheEntry>(0, 0.75f, true);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class LruMemoryCache implements MemoryCache {
 	 * of the queue. This returns null if a Bitmap is not cached.
 	 */
 	@Override
-	public final Bitmap get(String key) {
+	public final CacheEntry get(String key) {
 		if (key == null) {
 			throw new NullPointerException("key == null");
 		}
@@ -53,14 +53,14 @@ public class LruMemoryCache implements MemoryCache {
 
 	/** Caches {@code Bitmap} for {@code key}. The Bitmap is moved to the head of the queue. */
 	@Override
-	public final boolean put(String key, Bitmap value) {
+	public final boolean put(String key, CacheEntry value) {
 		if (key == null || value == null) {
 			throw new NullPointerException("key == null || value == null");
 		}
 
 		synchronized (this) {
 			size += sizeOf(key, value);
-			Bitmap previous = map.put(key, value);
+			CacheEntry previous = map.put(key, value);
 			if (previous != null) {
 				size -= sizeOf(key, previous);
 			}
@@ -78,7 +78,7 @@ public class LruMemoryCache implements MemoryCache {
 	private void trimToSize(int maxSize) {
 		while (true) {
 			String key;
-			Bitmap value;
+			CacheEntry value;
 			synchronized (this) {
 				if (size < 0 || (map.isEmpty() && size != 0)) {
 					throw new IllegalStateException(getClass().getName() + ".sizeOf() is reporting inconsistent results!");
@@ -88,7 +88,7 @@ public class LruMemoryCache implements MemoryCache {
 					break;
 				}
 
-				Map.Entry<String, Bitmap> toEvict = map.entrySet().iterator().next();
+				Map.Entry<String, CacheEntry> toEvict = map.entrySet().iterator().next();
 				if (toEvict == null) {
 					break;
 				}
@@ -102,17 +102,16 @@ public class LruMemoryCache implements MemoryCache {
 
 	/** Removes the entry for {@code key} if it exists. */
 	@Override
-	public final Bitmap remove(String key) {
+	public final void remove(String key) {
 		if (key == null) {
 			throw new NullPointerException("key == null");
 		}
 
 		synchronized (this) {
-			Bitmap previous = map.remove(key);
+		    CacheEntry previous = map.remove(key);
 			if (previous != null) {
 				size -= sizeOf(key, previous);
 			}
-			return previous;
 		}
 	}
 
@@ -133,8 +132,9 @@ public class LruMemoryCache implements MemoryCache {
 	 * <p/>
 	 * An entry's size must not change while it is in the cache.
 	 */
-	private int sizeOf(String key, Bitmap value) {
-		return value.getRowBytes() * value.getHeight();
+	private int sizeOf(String key, CacheEntry value) {
+	    return value.size();
+//		return value.getRowBytes() * value.getHeight();
 	}
 
 	@Override

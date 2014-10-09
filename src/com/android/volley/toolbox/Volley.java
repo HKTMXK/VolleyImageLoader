@@ -16,6 +16,8 @@
 
 package com.android.volley.toolbox;
 
+import java.io.File;
+
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -25,8 +27,7 @@ import android.os.Build;
 import com.android.volley.Cache;
 import com.android.volley.Network;
 import com.android.volley.RequestQueue;
-
-import java.io.File;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 
 public class Volley {
 
@@ -45,7 +46,7 @@ public class Volley {
      */
     public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
         File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
-        return newRequestQueue(context, stack, new DiskBasedCache(cacheDir));
+        return newRequestQueue(context, stack, new UnlimitedDiskCache(cacheDir));
     }
 
     public static RequestQueue newRequestQueue(Context context, Cache cache) {

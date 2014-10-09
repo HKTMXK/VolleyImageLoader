@@ -13,36 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-package com.nostra13.universalimageloader.cache.memory;
 
-import android.graphics.Bitmap;
+package com.nostra13.universalimageloader.cache.memory;
 
 import java.util.Collection;
 
+import com.android.volley.Cache;
+
+//import com.nostra13.universalimageloader.cache.Cache;
+
 /**
  * Interface for memory cache
- *
+ * 
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  * @since 1.9.2
  */
-public interface MemoryCache {
-	/**
-	 * Puts value into cache by key
-	 *
-	 * @return <b>true</b> - if value was put into cache successfully, <b>false</b> - if value was <b>not</b> put into
-	 * cache
-	 */
-	boolean put(String key, Bitmap value);
+public interface MemoryCache extends Cache {
 
-	/** Returns value by key. If there is no value for key then null will be returned. */
-	Bitmap get(String key);
+    boolean put(String key, CacheEntry entry);
 
-	/** Removes item by key */
-	Bitmap remove(String key);
+    CacheEntry get(String key);
 
-	/** Returns all keys of cache */
-	Collection<String> keys();
+    void remove(String key);
 
-	/** Remove all items from cache */
-	void clear();
+    Collection<String> keys();
+
+    void clear();
+
 }

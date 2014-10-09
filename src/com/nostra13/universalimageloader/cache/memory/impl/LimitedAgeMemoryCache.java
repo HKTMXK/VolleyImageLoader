@@ -50,7 +50,7 @@ public class LimitedAgeMemoryCache implements MemoryCache {
 	}
 
 	@Override
-	public boolean put(String key, Bitmap value) {
+	public boolean put(String key, CacheEntry value) {
 		boolean putSuccesfully = cache.put(key, value);
 		if (putSuccesfully) {
 			loadingDates.put(key, System.currentTimeMillis());
@@ -59,7 +59,7 @@ public class LimitedAgeMemoryCache implements MemoryCache {
 	}
 
 	@Override
-	public Bitmap get(String key) {
+	public CacheEntry get(String key) {
 		Long loadingDate = loadingDates.get(key);
 		if (loadingDate != null && System.currentTimeMillis() - loadingDate > maxAge) {
 			cache.remove(key);
@@ -70,9 +70,9 @@ public class LimitedAgeMemoryCache implements MemoryCache {
 	}
 
 	@Override
-	public Bitmap remove(String key) {
+	public void remove(String key) {
 		loadingDates.remove(key);
-		return cache.remove(key);
+		cache.remove(key);
 	}
 
 	@Override

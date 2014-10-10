@@ -15,11 +15,10 @@
  *******************************************************************************/
 package com.nostra13.universalimageloader.cache.memory.impl;
 
-import android.graphics.Bitmap;
-import com.nostra13.universalimageloader.cache.memory.BaseMemoryCache;
-
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+
+import com.nostra13.universalimageloader.cache.memory.BaseMemoryCache;
 
 /**
  * Memory cache with {@linkplain WeakReference weak references} to {@linkplain android.graphics.Bitmap bitmaps}<br />

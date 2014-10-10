@@ -21,8 +21,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.graphics.Bitmap;
-
 import com.nostra13.universalimageloader.utils.L;
 
 /**

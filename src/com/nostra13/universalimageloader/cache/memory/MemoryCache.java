@@ -39,5 +39,8 @@ public interface MemoryCache extends Cache {
     Collection<String> keys();
 
     void clear();
-
+    
+    enum MemoryCacheType{
+        BITMAP,DRAWABLE;
+    }
 }

@@ -17,6 +17,7 @@
 package com.nostra13.universalimageloader.core;
 
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -26,6 +27,7 @@ import android.widget.ImageView;
 import com.android.volley.Cache.CacheEntry;
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
 import com.nostra13.universalimageloader.cache.memory.MemoryCache;
+import com.nostra13.universalimageloader.cache.memory.MemoryCache.MemoryCacheType;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.FlushedInputStream;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
@@ -212,6 +214,12 @@ public class ImageLoader {
         displayImage(uri, imageAware, options, listener, null);
     }
 
+    public void displayImage(String uri, ImageAware imageAware, DisplayImageOptions options,
+            ImageLoadingListener listener, ImageLoadingProgressListener progressListener) {
+        displayImage(uri, imageAware, options, listener, progressListener,
+                MemoryCache.MemoryCacheType.BITMAP);
+    }
+
     /**
      * Adds display image task to execution pool. Image will be set to
      * ImageAware when it's turn.<br />
@@ -242,7 +250,8 @@ public class ImageLoader {
      * @throws IllegalArgumentException if passed <b>imageAware</b> is null
      */
     public void displayImage(String uri, ImageAware imageAware, DisplayImageOptions options,
-            ImageLoadingListener listener, ImageLoadingProgressListener progressListener) {
+            ImageLoadingListener listener, ImageLoadingProgressListener progressListener,
+            MemoryCache.MemoryCacheType memoryCacheType) {
         checkConfiguration();
         if (imageAware == null) {
             throw new IllegalArgumentException(ERROR_WRONG_ARGUMENTS);
@@ -273,31 +282,70 @@ public class ImageLoader {
 
         listener.onLoadingStarted(uri, imageAware.getWrappedView());
 
-        Bitmap bmp = null;
-        CacheEntry cacheEntry = configuration.memoryCache.get(memoryCacheKey);
-        if (cacheEntry != null) {
-            bmp = (Bitmap) configuration.memoryCache.get(memoryCacheKey).data;
-        }
-        if (bmp != null && !bmp.isRecycled()) {
-            L.d(LOG_LOAD_IMAGE_FROM_MEMORY_CACHE, memoryCacheKey);
+        boolean isMemoryHit = false;
 
-            if (options.shouldPostProcess()) {
-                ImageLoadingInfo imageLoadingInfo = new ImageLoadingInfo(uri, imageAware,
-                        targetSize, memoryCacheKey,
-                        options, listener, progressListener, engine.getLockForUri(uri));
-                ProcessAndDisplayImageTask displayTask = new ProcessAndDisplayImageTask(engine,
-                        bmp, imageLoadingInfo,
-                        defineHandler(options));
-                if (options.isSyncLoading()) {
-                    displayTask.run();
-                } else {
-                    engine.submit(displayTask);
-                }
-            } else {
-                options.getDisplayer().display(bmp, imageAware, LoadedFrom.MEMORY_CACHE);
-                listener.onLoadingComplete(uri, imageAware.getWrappedView(), bmp);
+        if (memoryCacheType == MemoryCacheType.BITMAP) {
+            Bitmap bmp = null;
+            CacheEntry cacheEntry = configuration.memoryCache.get(memoryCacheKey);
+            if (cacheEntry != null) {
+                bmp = (Bitmap) cacheEntry.data;
             }
-        } else {
+            if (bmp != null && !bmp.isRecycled()) {
+                isMemoryHit = true;
+                L.d(LOG_LOAD_IMAGE_FROM_MEMORY_CACHE, memoryCacheKey);
+                if (options.shouldPostProcess()) {
+                    ImageLoadingInfo imageLoadingInfo = new ImageLoadingInfo(uri, imageAware,
+                            targetSize, memoryCacheKey,
+                            options, listener, progressListener, engine.getLockForUri(uri));
+                    ProcessAndDisplayImageTask displayTask = new ProcessAndDisplayImageTask(engine,
+                            bmp, imageLoadingInfo,
+                            defineHandler(options));
+                    if (options.isSyncLoading()) {
+                        displayTask.run();
+                    } else {
+                        engine.submit(displayTask);
+                    }
+                } else {
+                    options.getDisplayer().display(bmp, imageAware, LoadedFrom.MEMORY_CACHE);
+                    listener.onLoadingComplete(uri, imageAware.getWrappedView(), bmp);
+                }
+            }
+        }
+
+        if (memoryCacheType == MemoryCacheType.DRAWABLE) {
+            Drawable drawable = null;
+            CacheEntry cacheEntry = configuration.memoryCache.get(memoryCacheKey);
+            if (cacheEntry != null) {
+                drawable = (Drawable) cacheEntry.data;
+            }
+            if (drawable != null) {
+                isMemoryHit = true;
+                L.d(LOG_LOAD_IMAGE_FROM_MEMORY_CACHE, memoryCacheKey);
+            }
+            // TODO
+            // if (options.shouldPostProcess()) {
+            // ImageLoadingInfo imageLoadingInfo = new ImageLoadingInfo(uri,
+            // imageAware,
+            // targetSize, memoryCacheKey,
+            // options, listener, progressListener, engine.getLockForUri(uri));
+            // ProcessAndDisplayImageTask displayTask = new
+            // ProcessAndDisplayImageTask(engine,
+            // bmp, imageLoadingInfo,
+            // defineHandler(options));
+            // if (options.isSyncLoading()) {
+            // displayTask.run();
+            // } else {
+            // engine.submit(displayTask);
+            // }
+            // } else {
+            // options.getDisplayer().display(bmp, imageAware,
+            // LoadedFrom.MEMORY_CACHE);
+            // listener.onLoadingComplete(uri, imageAware.getWrappedView(),
+            // bmp);
+            // }
+        }
+
+        if (!isMemoryHit) {
             if (options.shouldShowImageOnLoading()) {
                 imageAware.setImageDrawable(options.getImageOnLoading(configuration.resources));
             } else if (options.isResetViewBeforeLoading()) {

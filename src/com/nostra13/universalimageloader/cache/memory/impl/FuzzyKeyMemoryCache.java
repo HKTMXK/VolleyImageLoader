@@ -15,12 +15,10 @@
  *******************************************************************************/
 package com.nostra13.universalimageloader.cache.memory.impl;
 
-import android.graphics.Bitmap;
-
-import com.nostra13.universalimageloader.cache.memory.MemoryCache;
-
 import java.util.Collection;
 import java.util.Comparator;
+
+import com.nostra13.universalimageloader.cache.memory.MemoryCache;
 
 /**
  * Decorator for {@link MemoryCache}. Provides special feature for cache: some different keys are considered as
